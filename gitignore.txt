@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environment
+.env
+.venv
+env/
+venv/
+
+# Flask / App specific
+scan_history.json
+uploads/
+*.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# VS Code
+.vscode/
+
+# Zip files
+*.zip
+
+# pytest
+.pytest_cache/

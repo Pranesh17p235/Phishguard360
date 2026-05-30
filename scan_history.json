@@ -1,0 +1,362 @@
+[
+  {
+    "id": "1780114267565",
+    "timestamp": "2026-05-29 23:11:07",
+    "channel": "EMAIL",
+    "verdict": "MALICIOUS",
+    "score": 100,
+    "finding_count": 8,
+    "high_count": 7,
+    "medium_count": 1,
+    "low_count": 0,
+    "findings": [
+      {
+        "type": "From/Reply-To Mismatch",
+        "severity": "HIGH",
+        "detail": "From: security@paypa1-accounts.com | Reply-To: harvest@phish-collect.ru",
+        "explanation": "The sender address and the Reply-To address differ. Replies go to a different person than the apparent sender \u2014 a classic phishing technique."
+      },
+      {
+        "type": "SPF Fail",
+        "severity": "HIGH",
+        "detail": "SPF authentication failed.",
+        "explanation": "This email was sent from a server not authorized for the claimed domain. Someone is impersonating this sender."
+      },
+      {
+        "type": "DKIM Fail",
+        "severity": "HIGH",
+        "detail": "DKIM signature verification failed.",
+        "explanation": "The email's cryptographic signature is invalid \u2014 it may have been forged or tampered with."
+      },
+      {
+        "type": "DMARC Fail",
+        "severity": "HIGH",
+        "detail": "DMARC policy check failed.",
+        "explanation": "Strong indicator this email is not from who it claims to be from."
+      },
+      {
+        "type": "Suspicious TLD",
+        "severity": "HIGH",
+        "detail": "Domain 'paypa1-secure.account-verify.ru' uses the TLD '.ru', commonly associated with phishing and spam.",
+        "explanation": "The '.ru' top-level domain is frequently used by attackers because it is cheap or free to register. Legitimate government and business websites rarely use this TLD."
+      },
+      {
+        "type": "Suspicious Domain Keywords",
+        "severity": "HIGH",
+        "detail": "Domain 'paypa1-secure.account-verify.ru' contains suspicious keyword(s): pay, verify, secure, account",
+        "explanation": "Attackers register domains containing words like 'fine', 'pay', 'toll', or agency names to impersonate government or payment sites. Legitimate agencies use official .gov domains."
+      },
+      {
+        "type": "URL Shortener",
+        "severity": "MEDIUM",
+        "detail": "URL uses a shortening service that hides the real destination.",
+        "explanation": "Attackers use URL shorteners to hide malicious links. The real destination is unknown until clicked."
+      },
+      {
+        "type": "High Urgency / Manipulation Language",
+        "severity": "HIGH",
+        "detail": "Found 7 urgency/manipulation phrases: immediately, unusual activity, your account will be, unauthorized access, dear customer, suspension...",
+        "explanation": "This message uses multiple pressure tactics designed to make you act without thinking \u2014 a hallmark of phishing and smishing attacks."
+      }
+    ],
+    "input_preview": "From: security@paypa1-accounts.com\nReply-To: harvest@phish-collect.ru\nTo: victim@company.com\nSubject: =?UTF-8?B?VVJHRU5UOiBZb3VyIFBheVBhbCBBY2NvdW50IEhhcyBCZWVuIExpbWl0ZWQ=?=\nDate: Thu, 29 May 2026 08"
+  },
+  {
+    "id": "1780114168078",
+    "timestamp": "2026-05-29 23:09:28",
+    "channel": "CAMPAIGN",
+    "verdict": "55.0% click rate",
+    "score": 55,
+    "finding_count": 2,
+    "high_count": 2,
+    "medium_count": 0,
+    "low_count": 0,
+    "findings": [],
+    "input_preview": "FirstName,LastName,Email,Department,Position,EmailSent,EmailOpened,ClickedLink,SubmittedData,Campaign\r\nAlice,Johnson,alice@corp.com,Finance,Analyst,2026-03-01 08:00:00,2026-03-01 08:03:00,2026-03-01 0"
+  },
+  {
+    "id": "1780114150002",
+    "timestamp": "2026-05-29 23:09:10",
+    "channel": "CAMPAIGN",
+    "verdict": "46.7% click rate",
+    "score": 46,
+    "finding_count": 2,
+    "high_count": 2,
+    "medium_count": 0,
+    "low_count": 0,
+    "findings": [],
+    "input_preview": "FirstName,LastName,Email,Department,Position,EmailSent,EmailOpened,ClickedLink,SubmittedData,Campaign\nAlice,Johnson,alice@corp.com,Finance,Analyst,2024-03-01 08:00:00,2024-03-01 08:05:00,2024-03-01 08"
+  },
+  {
+    "id": "1780114136658",
+    "timestamp": "2026-05-29 23:08:56",
+    "channel": "SESSION",
+    "verdict": "ATTACK DETECTED",
+    "score": 100,
+    "finding_count": 7,
+    "high_count": 6,
+    "medium_count": 1,
+    "low_count": 0,
+    "findings": [
+      {
+        "session_id": "sess_attack_001",
+        "rule": "Geolocation Jump",
+        "severity": "HIGH",
+        "detail": "Session 'sess_attack_001' switched from United States (98.23.45.67) to The Netherlands (91.108.56.23) without logout.",
+        "explanation": "The same session token was used from two different countries \u2014 a strong indicator that an attacker in a different location replayed a stolen session cookie.",
+        "mitre": "T1539 \u2014 Steal Web Session Cookie"
+      },
+      {
+        "session_id": "sess_attack_001",
+        "rule": "User-Agent Switch",
+        "severity": "HIGH",
+        "detail": "Session 'sess_attack_001' used 2 different user agents: Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0; python-requests/2.28.0",
+        "explanation": "A real user's browser does not change mid-session. Different user agents on the same session token indicate the token is being used by a different device \u2014 likely an attacker.",
+        "mitre": "T1539 \u2014 Steal Web Session Cookie"
+      },
+      {
+        "session_id": "sess_attack_001",
+        "rule": "Impossible Travel",
+        "severity": "HIGH",
+        "detail": "Session 'sess_attack_001' used from 2 different IPs within 100 seconds.",
+        "explanation": "The same session was used from multiple IP addresses in an impossibly short time \u2014 consistent with an attacker immediately replaying a stolen session token.",
+        "mitre": "T1539 \u2014 Steal Web Session Cookie"
+      },
+      {
+        "session_id": "sess_attack_001",
+        "rule": "Abnormal Token Refresh Rate",
+        "severity": "MEDIUM",
+        "detail": "Session 'sess_attack_001' had 4 auth events with avg interval of 25.0s.",
+        "explanation": "Unusually frequent authentication or token refresh events can indicate automated tooling (like Evilginx2) relaying requests in real time.",
+        "mitre": "T1557 \u2014 Adversary-in-the-Middle"
+      },
+      {
+        "session_id": "sess_attack_002",
+        "rule": "User-Agent Switch",
+        "severity": "HIGH",
+        "detail": "Session 'sess_attack_002' used 2 different user agents: Mozilla/5.0 (iPhone; CPU iPhone OS 16_0) Safari/604.1; curl/7.88.1",
+        "explanation": "A real user's browser does not change mid-session. Different user agents on the same session token indicate the token is being used by a different device \u2014 likely an attacker.",
+        "mitre": "T1539 \u2014 Steal Web Session Cookie"
+      },
+      {
+        "session_id": "sess_attack_002",
+        "rule": "Impossible Travel",
+        "severity": "HIGH",
+        "detail": "Session 'sess_attack_002' used from 2 different IPs within 75 seconds.",
+        "explanation": "The same session was used from multiple IP addresses in an impossibly short time \u2014 consistent with an attacker immediately replaying a stolen session token.",
+        "mitre": "T1539 \u2014 Steal Web Session Cookie"
+      },
+      {
+        "session_id": "sess_attack_002",
+        "rule": "Concurrent Session from Multiple IPs",
+        "severity": "HIGH",
+        "detail": "Session 'sess_attack_002' was active simultaneously from 185.220.101.45 and 192.168.1.10.",
+        "explanation": "Two different IP addresses were using the same session token at the same time \u2014 one is the legitimate user, the other is likely an attacker who stole the session cookie.",
+        "mitre": "T1539 \u2014 Steal Web Session Cookie"
+      }
+    ],
+    "input_preview": "[\r\n  {\r\n    \"session_id\": \"sess_attack_001\",\r\n    \"ip\": \"98.23.45.67\",\r\n    \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0\",\r\n    \"timestamp\": \"2026-03-01T09:00:00Z\",\r\n    \"even"
+  },
+  {
+    "id": "1780114092148",
+    "timestamp": "2026-05-29 23:08:12",
+    "channel": "QR",
+    "verdict": "SUSPICIOUS",
+    "score": 60,
+    "finding_count": 2,
+    "high_count": 2,
+    "medium_count": 0,
+    "low_count": 0,
+    "findings": [
+      {
+        "type": "Suspicious TLD",
+        "severity": "HIGH",
+        "detail": "Domain 'paypa1-secure-login.verify-account.ru' uses the TLD '.ru', commonly associated with phishing and spam.",
+        "explanation": "The '.ru' top-level domain is frequently used by attackers because it is cheap or free to register. Legitimate government and business websites rarely use this TLD."
+      },
+      {
+        "type": "Suspicious Domain Keywords",
+        "severity": "HIGH",
+        "detail": "Domain 'paypa1-secure-login.verify-account.ru' contains suspicious keyword(s): pay, verify, secure, login, account",
+        "explanation": "Attackers register domains containing words like 'fine', 'pay', 'toll', or agency names to impersonate government or payment sites. Legitimate agencies use official .gov domains."
+      }
+    ],
+    "input_preview": "QR image uploaded"
+  },
+  {
+    "id": "1780114081337",
+    "timestamp": "2026-05-29 23:08:01",
+    "channel": "QR",
+    "verdict": "CLEAN",
+    "score": 0,
+    "finding_count": 0,
+    "high_count": 0,
+    "medium_count": 0,
+    "low_count": 0,
+    "findings": [],
+    "input_preview": "QR image uploaded"
+  },
+  {
+    "id": "1780114067366",
+    "timestamp": "2026-05-29 23:07:47",
+    "channel": "SMS",
+    "verdict": "CLEAN",
+    "score": 0,
+    "finding_count": 0,
+    "high_count": 0,
+    "medium_count": 0,
+    "low_count": 0,
+    "findings": [],
+    "input_preview": "NEW at KFC! Try the Crispy Shawarma Wrap at Rs.169. Loaded with chicken, fresh veggies and Lebanese sauce. Don't miss this! bit.ly/kfcind-shg21 TnC"
+  },
+  {
+    "id": "1780114059473",
+    "timestamp": "2026-05-29 23:07:39",
+    "channel": "SMS",
+    "verdict": "MALICIOUS",
+    "score": 100,
+    "finding_count": 9,
+    "high_count": 7,
+    "medium_count": 2,
+    "low_count": 0,
+    "findings": [
+      {
+        "type": "High Urgency / Manipulation Language",
+        "severity": "HIGH",
+        "detail": "Found 23 urgency/manipulation phrases: outstanding, traffic ticket, violation, suspension, driver's license, vehicle registration...",
+        "explanation": "This message uses multiple pressure tactics designed to make you act without thinking \u2014 a hallmark of phishing and smishing attacks."
+      },
+      {
+        "type": "Legal Threat Pattern",
+        "severity": "HIGH",
+        "detail": "Message uses legal threats: legal proceedings, credit damage",
+        "explanation": "Scammers use fake legal threats to create fear and urgency. Government agencies do not issue legal threats via SMS with payment links."
+      },
+      {
+        "type": "SMS Payment Scam Pattern",
+        "severity": "HIGH",
+        "detail": "Message demands urgent payment with penalty threats: pay promptly, outstanding, failure to pay, processing charge",
+        "explanation": "This matches a known SMS smishing pattern where attackers impersonate government agencies to collect fake fines or tolls. Real agencies send official paper notices, not SMS links."
+      },
+      {
+        "type": "Suspicious SMS Instruction",
+        "severity": "HIGH",
+        "detail": "Message instructs user to 'Reply Y', reopen the message, or paste a link manually.",
+        "explanation": "This is a classic smishing evasion technique \u2014 instructing users to interact in ways that bypass link-click detection on mobile devices."
+      },
+      {
+        "type": "Fake Legal Citation",
+        "severity": "MEDIUM",
+        "detail": "Message cites a specific legal code or statute to appear official.",
+        "explanation": "Scammers cite fake or real legal codes to appear authoritative. Legitimate government notices arrive by certified mail, not SMS."
+      },
+      {
+        "type": "Government Agency Impersonation",
+        "severity": "HIGH",
+        "detail": "Message impersonates government agency: illinois dot, idot, dmv, ssa, dot",
+        "explanation": "This message claims to be from a government agency. Legitimate agencies contact you via official mail or official .gov websites \u2014 never via SMS with payment links."
+      },
+      {
+        "type": "Suspicious Domain Keywords",
+        "severity": "HIGH",
+        "detail": "Domain 'idot.fine-ilwt.com' contains suspicious keyword(s): fine, ilwt, -il, idot",
+        "explanation": "Attackers register domains containing words like 'fine', 'pay', 'toll', or agency names to impersonate government or payment sites. Legitimate agencies use official .gov domains."
+      },
+      {
+        "type": "Government Impersonation",
+        "severity": "HIGH",
+        "detail": "Domain 'idot.fine-ilwt.com' uses government-sounding keywords but is NOT a .gov domain.",
+        "explanation": "All legitimate US government websites use .gov domains. A site claiming to be a government agency on any other domain (like .com, .net, or others) is almost certainly fraudulent."
+      },
+      {
+        "type": "Recently Registered Domain",
+        "severity": "MEDIUM",
+        "detail": "'fine-ilwt.com' was registered 65 days ago.",
+        "explanation": "This domain is relatively new (65 days old), which can indicate it was created recently for malicious purposes."
+      }
+    ],
+    "input_preview": "Illinois DOT\r\nOur database indicates an outstanding traffic ticket in your file.\r\n\r\nPer Illinois Administrative Code Section 15C\u201116.003, failure to pay by March 25, 2026 will lead to:\r\n1. DMV violatio"
+  },
+  {
+    "id": "1780114038128",
+    "timestamp": "2026-05-29 23:07:18",
+    "channel": "EMAIL",
+    "verdict": "CLEAN",
+    "score": 15,
+    "finding_count": 1,
+    "high_count": 0,
+    "medium_count": 1,
+    "low_count": 0,
+    "findings": [
+      {
+        "type": "No Authentication Headers",
+        "severity": "MEDIUM",
+        "detail": "No SPF/DKIM/DMARC results found.",
+        "explanation": "Legitimate organizations authenticate their emails. Missing authentication headers suggest this bypassed verification."
+      }
+    ],
+    "input_preview": "Hi, Teacher Luke here!\r\n\r\n\r\n\r\nTwo quick \u2014 but super important Duolingo English Test\u2014 updates for you today:\r\n\r\n\r\n\r\n1\ufe0f\u20e3 May Sale: 35% Off DET Ready VIP \u2014 Ends Monday\r\n\r\n2\ufe0f\u20e3 Save 10% on your Official Du"
+  },
+  {
+    "id": "1780114025668",
+    "timestamp": "2026-05-29 23:07:05",
+    "channel": "EMAIL",
+    "verdict": "MALICIOUS",
+    "score": 100,
+    "finding_count": 8,
+    "high_count": 7,
+    "medium_count": 1,
+    "low_count": 0,
+    "findings": [
+      {
+        "type": "From/Reply-To Mismatch",
+        "severity": "HIGH",
+        "detail": "From: security@paypa1-accounts.com | Reply-To: harvest@phish-collect.ru",
+        "explanation": "The sender address and the Reply-To address differ. Replies go to a different person than the apparent sender \u2014 a classic phishing technique."
+      },
+      {
+        "type": "SPF Fail",
+        "severity": "HIGH",
+        "detail": "SPF authentication failed.",
+        "explanation": "This email was sent from a server not authorized for the claimed domain. Someone is impersonating this sender."
+      },
+      {
+        "type": "DKIM Fail",
+        "severity": "HIGH",
+        "detail": "DKIM signature verification failed.",
+        "explanation": "The email's cryptographic signature is invalid \u2014 it may have been forged or tampered with."
+      },
+      {
+        "type": "DMARC Fail",
+        "severity": "HIGH",
+        "detail": "DMARC policy check failed.",
+        "explanation": "Strong indicator this email is not from who it claims to be from."
+      },
+      {
+        "type": "Suspicious TLD",
+        "severity": "HIGH",
+        "detail": "Domain 'paypa1-secure.account-verify.ru' uses the TLD '.ru', commonly associated with phishing and spam.",
+        "explanation": "The '.ru' top-level domain is frequently used by attackers because it is cheap or free to register. Legitimate government and business websites rarely use this TLD."
+      },
+      {
+        "type": "Suspicious Domain Keywords",
+        "severity": "HIGH",
+        "detail": "Domain 'paypa1-secure.account-verify.ru' contains suspicious keyword(s): pay, verify, secure, account",
+        "explanation": "Attackers register domains containing words like 'fine', 'pay', 'toll', or agency names to impersonate government or payment sites. Legitimate agencies use official .gov domains."
+      },
+      {
+        "type": "URL Shortener",
+        "severity": "MEDIUM",
+        "detail": "URL uses a shortening service that hides the real destination.",
+        "explanation": "Attackers use URL shorteners to hide malicious links. The real destination is unknown until clicked."
+      },
+      {
+        "type": "High Urgency / Manipulation Language",
+        "severity": "HIGH",
+        "detail": "Found 7 urgency/manipulation phrases: immediately, unusual activity, your account will be, unauthorized access, dear customer, suspension...",
+        "explanation": "This message uses multiple pressure tactics designed to make you act without thinking \u2014 a hallmark of phishing and smishing attacks."
+      }
+    ],
+    "input_preview": "From: security@paypa1-accounts.com\nReply-To: harvest@phish-collect.ru\nTo: victim@company.com\nSubject: =?UTF-8?B?VVJHRU5UOiBZb3VyIFBheVBhbCBBY2NvdW50IEhhcyBCZWVuIExpbWl0ZWQ=?=\nDate: Thu, 29 May 2026 08"
+  }
+]

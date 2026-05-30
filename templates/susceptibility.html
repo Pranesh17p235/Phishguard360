@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %} // BEHAVIOR ANALYSIS{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+  <span class="badge-module badge-m3">MOD_03</span>
+  <div>
+    <h4 style="font-family:var(--font-title); color:var(--green); text-shadow:0 0 10px var(--green); margin:0; font-size:1rem; letter-spacing:2px;">HUMAN SUSCEPTIBILITY DASHBOARD</h4>
+    <p style="color:var(--text-dim); font-size:0.78rem; margin:0; letter-spacing:1px;">// GOPHISH CAMPAIGN DATA // BEHAVIORAL ANALYTICS</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="terminal-box">
+      <div class="term-header">
+        <div class="term-dot red"></div><div class="term-dot yellow"></div><div class="term-dot green"></div>
+        <span class="term-title">CAMPAIGN_DATA.INPUT</span>
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label">UPLOAD GOPHISH CSV</label>
+          <input type="file" class="form-control" name="csv_file" accept=".csv">
+          <div class="form-text">// Export: Campaigns → Results → Export CSV</div>
+        </div>
+        <div class="text-center mb-2" style="font-size:0.72rem; color:var(--text-dim); letter-spacing:2px;">— OR PASTE CSV —</div>
+        <div class="mb-3">
+          <textarea class="form-control font-monospace" name="csv_text" rows="5"
+            placeholder="FirstName,LastName,Email,Department,Position,EmailSent,EmailOpened,ClickedLink,SubmittedData..."></textarea>
+        </div>
+        <div class="d-grid gap-2">
+          <button type="submit" name="action" value="analyze" class="btn-hack py-2">
+            <i class="bi bi-bar-chart me-2"></i>ANALYZE CAMPAIGN
+          </button>
+          <button type="submit" name="action" value="use_sample" class="btn-hack btn-hack-sm">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i>USE SAMPLE DATA
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-3" style="border-top:1px solid var(--border); padding-top:12px;">
+        <div style="font-size:0.72rem; color:var(--green-dim); letter-spacing:1px; margin-bottom:6px;">// REQUIRED CSV COLUMNS</div>
+        <div style="font-size:0.75rem; color:var(--text-dim); line-height:1.8;">
+          <code>FirstName, LastName, Email</code><br>
+          <code>Department, Position</code><br>
+          <code>EmailSent, EmailOpened</code><br>
+          <code>ClickedLink, SubmittedData</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    {% if error %}<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}</div>{% endif %}
+
+    {% if result %}
+    <!-- Stats -->
+    <div class="row g-2 mb-3">
+      <div class="col-3"><div class="stat-box"><div class="stat-num" style="color:var(--green);">{{ result.total }}</div><div class="stat-label">Targets</div></div></div>
+      <div class="col-3"><div class="stat-box"><div class="stat-num" style="color:var(--yellow);">{{ result.overall_open_rate }}%</div><div class="stat-label">Open Rate</div></div></div>
+      <div class="col-3"><div class="stat-box"><div class="stat-num" style="color:var(--red);">{{ result.overall_click_rate }}%</div><div class="stat-label">Click Rate</div></div></div>
+      <div class="col-3"><div class="stat-box"><div class="stat-num" style="color:var(--red);">{{ result.overall_submit_rate }}%</div><div class="stat-label">Submit Rate</div></div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <div class="terminal-box" style="padding:12px;">
+          <div style="font-size:0.72rem; color:var(--green-dim); letter-spacing:1px; margin-bottom:8px;">// CLICK RATE BY DEPARTMENT</div>
+          <canvas id="deptChart" height="180"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="terminal-box" style="padding:12px;">
+          <div style="font-size:0.72rem; color:var(--green-dim); letter-spacing:1px; margin-bottom:8px;">// CLICK RATE BY ROLE</div>
+          <canvas id="roleChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-8">
+        <div class="terminal-box" style="padding:12px;">
+          <div style="font-size:0.72rem; color:var(--green-dim); letter-spacing:1px; margin-bottom:8px;">// CLICKS BY HOUR OF DAY</div>
+          <canvas id="hourChart" height="120"></canvas>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="terminal-box h-100 d-flex flex-column justify-content-center" style="padding:16px; text-align:center;">
+          <div style="font-size:0.72rem; color:var(--green-dim); letter-spacing:1px; margin-bottom:12px;">// TIME TO CLICK</div>
+          {% if result.avg_ttc %}
+          <div style="font-family:var(--font-title); font-size:2.5rem; color:var(--red); text-shadow:0 0 15px var(--red);">{{ result.avg_ttc }}</div>
+          <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:8px;">minutes avg</div>
+          <div style="font-size:0.75rem; {% if result.avg_ttc < 5 %}color:var(--red){% elif result.avg_ttc < 15 %}color:var(--yellow){% else %}color:var(--green){% endif %}">
+            {% if result.avg_ttc < 5 %}CRITICAL — clicked without reviewing
+            {% elif result.avg_ttc < 15 %}WARNING — minimal scrutiny
+            {% else %}OK — some hesitation shown{% endif %}
+          </div>
+          {% else %}
+          <div style="color:var(--text-dim); font-size:0.8rem;">no click timing data</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk segments -->
+    {% if result.risk_segments %}
+    <div class="terminal-box">
+      <div class="term-header">
+        <div class="term-dot red"></div><div class="term-dot yellow"></div><div class="term-dot green"></div>
+        <span class="term-title">HIGH_RISK_SEGMENTS.ALERT</span>
+      </div>
+      {% for seg in result.risk_segments %}
+      <div class="mb-3 pb-3" style="border-bottom:1px solid var(--border);">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <span style="color:var(--text); font-size:0.85rem;">{{ seg.segment }}</span>
+          <span class="sev-{% if seg.risk_level=='HIGH' %}high{% else %}medium{% endif %}">
+            {{ seg.risk_level }} // {{ seg.click_rate }}%
+          </span>
+        </div>
+        <div style="font-size:0.78rem; color:var(--green-dim); font-style:italic;">
+          <i class="bi bi-mortarboard-fill me-1"></i>{{ seg.training }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="placeholder-panel">
+      <div>
+        <i class="bi bi-bar-chart"></i>
+        <p class="prompt" style="font-size:0.85rem;">upload campaign csv or use sample</p>
+        <p style="font-size:0.75rem; color:var(--text-dim);">awaiting input...</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{% if result %}
+<script>
+const deptData = {{ result.dept_data | tojson }};
+const roleData = {{ result.role_data | tojson }};
+const hourData = {{ result.hour_data | tojson }};
+
+const chartDefaults = {
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { ticks: { color: '#4a8a4a', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: '#0d3d0d' } },
+    y: { beginAtZero: true, max: 100, ticks: { color: '#4a8a4a', font: { family: 'Share Tech Mono', size: 10 } }, grid: { color: '#0d3d0d' } }
+  }
+};
+
+const getColor = (rate) => rate >= 50 ? '#ff003c' : rate >= 25 ? '#ffcc00' : '#00ff41';
+
+new Chart(document.getElementById('deptChart'), {
+  type: 'bar',
+  data: {
+    labels: deptData.map(d => d.label),
+    datasets: [{ label: '%', data: deptData.map(d => d.click_rate), backgroundColor: deptData.map(d => getColor(d.click_rate)), borderWidth: 0 }]
+  },
+  options: chartDefaults
+});
+
+new Chart(document.getElementById('roleChart'), {
+  type: 'bar',
+  data: {
+    labels: roleData.map(d => d.label),
+    datasets: [{ label: '%', data: roleData.map(d => d.click_rate), backgroundColor: roleData.map(d => getColor(d.click_rate)), borderWidth: 0 }]
+  },
+  options: chartDefaults
+});
+
+new Chart(document.getElementById('hourChart'), {
+  type: 'line',
+  data: {
+    labels: hourData.map(h => h.hour),
+    datasets: [{ data: hourData.map(h => h.clicks), borderColor: '#ff003c', backgroundColor: 'rgba(255,0,60,0.1)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#ff003c' }]
+  },
+  options: { ...chartDefaults, scales: { x: chartDefaults.scales.x, y: { ...chartDefaults.scales.y, max: undefined } } }
+});
+</script>
+{% endif %}
+{% endblock %}

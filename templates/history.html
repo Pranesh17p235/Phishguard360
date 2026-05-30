@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %} // HISTORY{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+  <span class="badge-module badge-m4">MOD_04</span>
+  <div>
+    <h4 style="font-family:var(--font-title); color:var(--cyan); text-shadow:0 0 10px var(--cyan); margin:0; font-size:1rem; letter-spacing:2px;">SCAN HISTORY</h4>
+    <p style="color:var(--text-dim); font-size:0.78rem; margin:0; letter-spacing:1px;">// FULL AUDIT TRAIL // SELECT TO DELETE</p>
+  </div>
+</div>
+
+{% if entries %}
+<form method="POST" action="/history/delete" id="deleteForm">
+  <div class="terminal-box">
+    <div class="term-header">
+      <div class="term-dot red"></div><div class="term-dot yellow"></div><div class="term-dot green"></div>
+      <span class="term-title">SCAN_LOG.DB — {{ entries|length }} entries</span>
+      <div class="ms-auto d-flex gap-2">
+        <button type="button" class="btn-hack btn-hack-sm" onclick="selectAll()" style="font-size:0.7rem;">SELECT ALL</button>
+        <button type="button" class="btn-hack btn-hack-sm" onclick="selectNone()" style="font-size:0.7rem;">CLEAR</button>
+      </div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
+      <button type="submit" class="btn-hack btn-hack-red btn-hack-sm">
+        <i class="bi bi-trash me-1"></i>DELETE SELECTED
+      </button>
+      <button type="button" class="btn-hack btn-hack-sm" style="font-size:0.7rem; color:var(--text-dim);"
+        onclick="if(confirm('DELETE ALL HISTORY?')){document.getElementById('clearForm').submit();}">
+        <i class="bi bi-trash3 me-1"></i>CLEAR ALL
+      </button>
+      <span id="selectedCount" style="font-size:0.75rem; color:var(--text-dim); margin-left:8px;">0 selected</span>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto;">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th style="width:40px;"></th>
+          <th>TIMESTAMP</th>
+          <th>CHANNEL</th>
+          <th>VERDICT</th>
+          <th>SCORE</th>
+          <th>H</th>
+          <th>M</th>
+          <th>INPUT PREVIEW</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for e in entries %}
+      <tr class="history-row" onclick="toggleRow(this)" data-id="{{ e.id }}">
+        <td onclick="event.stopPropagation()">
+          <input type="checkbox" class="form-check-input entry-check" name="entry_ids"
+            value="{{ e.id }}" onchange="updateCount()">
+        </td>
+        <td style="font-size:0.75rem; color:var(--text-dim); white-space:nowrap;">{{ e.timestamp }}</td>
+        <td><span class="channel-label">{{ e.channel }}</span></td>
+        <td>
+          <span style="font-size:0.8rem; font-weight:600;
+            {% if e.verdict in ['MALICIOUS','ATTACK DETECTED'] %}color:var(--red)
+            {% elif e.verdict == 'SUSPICIOUS' %}color:var(--yellow)
+            {% elif e.verdict == 'CLEAN' %}color:var(--green)
+            {% else %}color:var(--cyan){% endif %}">
+            {{ e.verdict }}
+          </span>
+        </td>
+        <td>
+          <span style="font-family:var(--font-title); font-size:0.85rem;
+            {% if e.score >= 70 %}color:var(--red)
+            {% elif e.score >= 31 %}color:var(--yellow)
+            {% else %}color:var(--green){% endif %}">
+            {{ e.score }}
+          </span>
+        </td>
+        <td><span style="color:var(--red); font-size:0.8rem;">{{ e.high_count }}</span></td>
+        <td><span style="color:var(--yellow); font-size:0.8rem;">{{ e.medium_count }}</span></td>
+        <td style="font-size:0.75rem; color:var(--text-dim); max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          {{ e.input_preview[:80] }}{% if e.input_preview|length > 80 %}...{% endif %}
+        </td>
+      </tr>
+
+      <!-- Expandable findings row -->
+      {% if e.findings %}
+      <tr class="findings-detail" id="detail-{{ e.id }}" style="display:none; background:#000;">
+        <td colspan="8" style="padding:12px 16px;">
+          <div style="font-size:0.72rem; color:var(--green-dim); letter-spacing:1px; margin-bottom:8px;">// FINDINGS</div>
+          {% for f in e.findings[:5] %}
+          <div class="d-flex gap-2 mb-1 align-items-start">
+            <span class="sev-{{ f.severity|lower }}" style="flex-shrink:0;">{{ f.severity }}</span>
+            <span style="font-size:0.78rem; color:var(--text-dim);">{{ f.type }} — {{ f.detail[:80] }}{% if f.detail|length > 80 %}...{% endif %}</span>
+          </div>
+          {% endfor %}
+          {% if e.findings|length > 5 %}
+          <div style="font-size:0.72rem; color:var(--text-dim); margin-top:4px;">+ {{ e.findings|length - 5 }} more findings</div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+</form>
+
+<form method="POST" action="/history/clear" id="clearForm"></form>
+
+{% else %}
+<div class="placeholder-panel" style="min-height:300px;">
+  <div>
+    <i class="bi bi-clock-history"></i>
+    <p class="prompt" style="font-size:0.85rem;">no scan history found</p>
+    <p style="font-size:0.75rem; color:var(--text-dim);">run a scan to populate the log</p>
+    <a href="/scanner" class="btn-hack btn-hack-sm mt-2 text-decoration-none">
+      <i class="bi bi-search me-1"></i>GO TO SCANNER
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block scripts %}
+<script>
+function toggleRow(row) {
+  const cb = row.querySelector('.entry-check');
+  if (!cb) return;
+  cb.checked = !cb.checked;
+  row.classList.toggle('selected', cb.checked);
+  // Toggle findings detail
+  const detailRow = document.getElementById('detail-' + row.dataset.id);
+  if (detailRow) detailRow.style.display = cb.checked ? 'table-row' : 'none';
+  updateCount();
+}
+function selectAll() {
+  document.querySelectorAll('.entry-check').forEach(cb => {
+    cb.checked = true;
+    cb.closest('tr').classList.add('selected');
+    const dr = document.getElementById('detail-' + cb.value);
+    if (dr) dr.style.display = 'table-row';
+  });
+  updateCount();
+}
+function selectNone() {
+  document.querySelectorAll('.entry-check').forEach(cb => {
+    cb.checked = false;
+    cb.closest('tr').classList.remove('selected');
+    const dr = document.getElementById('detail-' + cb.value);
+    if (dr) dr.style.display = 'none';
+  });
+  updateCount();
+}
+function updateCount() {
+  const n = document.querySelectorAll('.entry-check:checked').length;
+  document.getElementById('selectedCount').textContent = n + ' selected';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %} // SESSION DETECTOR{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+  <span class="badge-module badge-m2">MOD_02</span>
+  <div>
+    <h4 style="font-family:var(--font-title); color:var(--yellow); text-shadow:0 0 10px var(--yellow); margin:0; font-size:1rem; letter-spacing:2px;">AITM SESSION HIJACKING DETECTOR</h4>
+    <p style="color:var(--text-dim); font-size:0.78rem; margin:0; letter-spacing:1px;">// DETECTS POST-MFA SESSION COOKIE THEFT</p>
+  </div>
+</div>
+
+<div class="alert alert-warning mb-4" style="font-size:0.82rem;">
+  <i class="bi bi-info-circle-fill me-2"></i>
+  <strong>AiTM attacks</strong> relay authentication in real time — stealing session cookies <em>after</em> MFA succeeds. This module detects behavioral anomalies that reveal active hijacking.
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="terminal-box">
+      <div class="term-header">
+        <div class="term-dot red"></div><div class="term-dot yellow"></div><div class="term-dot green"></div>
+        <span class="term-title">SESSION_LOG.INPUT</span>
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label">PASTE SESSION LOG (JSON/CSV)</label>
+          <textarea class="form-control font-monospace" name="session_log" rows="11"
+            placeholder='[{"session_id":"sess_001","ip":"...","user_agent":"...","timestamp":"...","event_type":"login"}]'></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">OR UPLOAD LOG FILE</label>
+          <input type="file" class="form-control" name="log_file" accept=".json,.csv">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">FORMAT</label>
+          <select class="form-select" name="log_format">
+            <option value="json">JSON</option>
+            <option value="csv">CSV</option>
+          </select>
+        </div>
+        <div class="d-grid gap-2">
+          <button type="submit" name="action" value="analyze" class="btn-hack btn-hack-yellow py-2">
+            <i class="bi bi-shield-lock me-2"></i>ANALYZE SESSIONS
+          </button>
+          <button type="submit" name="action" value="use_sample" class="btn-hack btn-hack-sm">
+            <i class="bi bi-file-earmark-code me-2"></i>USE SAMPLE LOG
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-3" style="border-top:1px solid var(--border); padding-top:12px;">
+        <div style="font-size:0.72rem; color:var(--green-dim); letter-spacing:1px; margin-bottom:6px;">// DETECTION RULES</div>
+        <div style="font-size:0.75rem; color:var(--text-dim); line-height:2;">
+          <span style="color:var(--red);">▸</span> Geolocation jump mid-session<br>
+          <span style="color:var(--red);">▸</span> User-agent switching<br>
+          <span style="color:var(--red);">▸</span> Impossible travel detection<br>
+          <span style="color:var(--yellow);">▸</span> Abnormal token refresh rate<br>
+          <span style="color:var(--red);">▸</span> Concurrent session from multiple IPs
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    {% if error %}<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}</div>{% endif %}
+
+    {% if result %}
+    <div class="terminal-box mb-3 verdict-{{ result.verdict_class }}">
+      <div class="term-header">
+        <div class="term-dot red"></div><div class="term-dot yellow"></div><div class="term-dot green"></div>
+        <span class="term-title">SESSION_ANALYSIS.OUT</span>
+      </div>
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <div style="font-size:0.7rem; color:var(--text-dim); letter-spacing:2px; margin-bottom:4px;">SESSION VERDICT</div>
+          <div class="verdict-text-{{ result.verdict_class }}" style="font-family:var(--font-title); font-size:1.8rem; font-weight:900; letter-spacing:2px;">
+            {{ result.verdict }}
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-dim); margin-top:4px;">{{ result.sessions_analyzed }} session(s) analyzed</div>
+        </div>
+        <div class="text-center">
+          <div class="risk-score {% if result.verdict_class=='danger' %}risk-high{% elif result.verdict_class=='warning' %}risk-medium{% else %}risk-low{% endif %}">
+            {{ result.score }}
+          </div>
+          <div style="font-size:0.7rem; color:var(--text-dim); margin-top:4px;">RISK / 100</div>
+        </div>
+      </div>
+      <div class="row g-2 mt-3">
+        <div class="col-6 text-center">
+          <div style="font-family:var(--font-title); font-size:1.5rem; color:var(--red);">{{ result.high_count }}</div>
+          <div style="font-size:0.7rem; color:var(--text-dim);">HIGH SEVERITY</div>
+        </div>
+        <div class="col-6 text-center">
+          <div style="font-family:var(--font-title); font-size:1.5rem; color:var(--yellow);">{{ result.medium_count }}</div>
+          <div style="font-size:0.7rem; color:var(--text-dim);">MEDIUM SEVERITY</div>
+        </div>
+      </div>
+    </div>
+
+    {% if result.findings %}
+    <div style="font-size:0.72rem; color:var(--green-dim); letter-spacing:1px; margin-bottom:8px;">// SESSION ANOMALIES ({{ result.finding_count }})</div>
+    <div class="findings-scroll">
+    {% for f in result.findings %}
+    <div class="card finding-card finding-{{ f.severity|lower }} mb-2">
+      <div class="card-body py-2 px-3">
+        <div class="d-flex gap-2 align-items-start">
+          <span class="sev-{{ f.severity|lower }} mt-1 flex-shrink-0">{{ f.severity }}</span>
+          <div>
+            <div style="font-size:0.85rem; color:var(--text);">{{ f.rule }}</div>
+            <div style="font-size:0.75rem; color:var(--text-dim);">SESSION: <code>{{ f.session_id }}</code></div>
+            <div style="font-size:0.78rem; color:var(--text-dim); margin-top:2px;">{{ f.detail }}</div>
+            <div style="font-size:0.75rem; color:var(--green-dim); margin-top:4px; font-style:italic;"><i class="bi bi-info-circle me-1"></i>{{ f.explanation }}</div>
+            {% if f.mitre %}<div class="mt-1"><code>{{ f.mitre }}</code></div>{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i>No session anomalies detected.</div>
+    {% endif %}
+
+    {% else %}
+    <div class="placeholder-panel">
+      <div>
+        <i class="bi bi-shield-lock"></i>
+        <p class="prompt" style="font-size:0.85rem;">paste session log or use sample</p>
+        <p style="font-size:0.75rem; color:var(--text-dim);">awaiting input...</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
