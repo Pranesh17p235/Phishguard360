@@ -24,7 +24,7 @@ function TypewriterHeading({ lines, className = '' }: { lines: string[]; classNa
   }, [])
   return (
     <h1 className={className}>
-      {lines.map((line, i) => (
+      {lines.map((_line, i) => (
         <span key={i} className="block">
           {displayed[i]}
           {i===lines.length-1 && !done && <span className="animate-blink text-[var(--cyan)]">|</span>}
